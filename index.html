@@ -17,7 +17,6 @@
     color: #e8e0d5;
   }
 
-  /* ── Stars twinkle in background ── */
   .star {
     position: fixed;
     background: #fff;
@@ -32,7 +31,6 @@
     50%      { opacity: 0.8; transform: scale(1.4); }
   }
 
-  /* ── Floating particles ── */
   .particle {
     position: fixed;
     bottom: -50px;
@@ -58,7 +56,6 @@
     transition: opacity 1s ease, transform 1s ease;
   }
 
-  /* ── Envelope ── */
   .envelope {
     width: min(260px, 70vw);
     height: calc(min(260px, 70vw) * 0.65);
@@ -92,7 +89,6 @@
   }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-  /* ── Candle scene ── */
   .cake { position: relative; margin-bottom: 40px; }
   .cake-body {
     width: min(170px, 44vw);
@@ -159,7 +155,6 @@
     to   { transform: translate(-30%, -70px) scale(3); opacity: 0; }
   }
 
-  /* ── Memory letter ── */
   #letter {
     max-width: 680px;
     width: 100%;
@@ -211,13 +206,6 @@
     text-align: center;
     font-size: clamp(1.05rem, 2.8vw, 1.25rem);
   }
-  .big-wish {
-    font-weight: 600;
-    color: #f0c987;
-    text-align: center;
-    font-size: clamp(1.3rem, 4vw, 1.6rem);
-    margin: 30px 0;
-  }
   .final-couplet {
     font-style: italic;
     text-align: center;
@@ -241,7 +229,7 @@
     margin-top: 26px;
   }
 
-  /* ── Buttons ── */
+  /* ✅ FIXED: base .btn no longer hides — visibility now controlled only by modifier */
   .btn {
     display: block;
     margin: 40px auto 0;
@@ -254,11 +242,11 @@
     letter-spacing: 2px;
     cursor: pointer;
     border-radius: 30px;
-    opacity: 0;
-    pointer-events: none;
     transition: all 0.4s ease;
+    pointer-events: auto;
   }
-  .btn.show { opacity: 1; pointer-events: auto; }
+  /* only these specific states are hidden */
+  .btn.hidden-btn { opacity: 0; pointer-events: none; }
   .btn:hover {
     background: #d4a966;
     color: #1a1a2e;
@@ -274,7 +262,6 @@
     color: rgba(212,169,102,0.7);
   }
 
-  /* ── Memory finale ── */
   #final-message {
     position: fixed; inset: 0;
     display: none;
@@ -300,8 +287,20 @@
     margin-bottom: 30px;
     animation: popIn 1.5s ease;
   }
-  #final-message .btn { margin: 10px auto; min-width: 240px; animation: popIn 1.8s ease; }
-  #final-message .memoline {
+  /* ✅ FIXED: menu buttons are always visible & clickable */
+  #final-message .btn {
+    margin: 10px auto;
+    min-width: 240px;
+    opacity: 1;
+    pointer-events: auto;
+    animation: popIn 1.2s ease backwards;
+  }
+  #final-message .btn:nth-of-type(1) { animation-delay: 0.2s; }
+  #final-message .btn:nth-of-type(2) { animation-delay: 0.4s; }
+  #final-message .btn:nth-of-type(3) { animation-delay: 0.6s; }
+  #final-message .btn:nth-of-type(4) { animation-delay: 0.8s; }
+
+  .memoline {
     margin-top: 26px;
     font-size: clamp(0.85rem, 2.5vw, 1rem);
     opacity: 0.6;
@@ -312,7 +311,7 @@
 
   @keyframes popIn {
     from { transform: scale(0.7); opacity: 0; }
-    to   { transform: scale(1); opacity: 1; }
+    to   { transform: scale(1);   opacity: 1; }
   }
 
   .burst {
@@ -327,7 +326,6 @@
     to   { transform: translate(var(--dx), var(--dy)) scale(0.4); opacity: 0; }
   }
 
-  /* ── Keep-it memory screen ── */
   #memory-screen .big-heart {
     font-size: clamp(4rem, 15vw, 6rem);
     animation: heartbeat 1.4s ease-in-out infinite;
@@ -351,9 +349,27 @@
     letter-spacing: 3px;
     margin-top: 24px;
   }
+
+  /* 🎵 music toggle */
+  #music-toggle {
+    position: fixed;
+    top: 14px; right: 14px;
+    z-index: 500;
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    border: 1px solid rgba(212,169,102,0.5);
+    background: rgba(26,26,46,0.8);
+    color: #d4a966;
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(4px);
+  }
 </style>
 </head>
 <body>
+
+<button id="music-toggle" onclick="toggleMusic()" title="Music on/off">🎵</button>
 
 <!-- 1️⃣ ENVELOPE -->
 <div class="scene" id="envelope-scene">
@@ -373,7 +389,7 @@
     <div class="glow" id="glow"></div>
     <div class="cake-body"><div class="frosting"></div></div>
   </div>
-  <button class="btn show" onclick="blowCandle()">Blow the candle 🌬️</button>
+  <button class="btn" onclick="blowCandle()">Blow the candle 🌬️</button>
 </div>
 
 <!-- 3️⃣ THE MEMORY LETTER -->
@@ -396,9 +412,7 @@
 
     <div class="paragraph bold-line" data-type="Anytime. Anywhere. In any situation."></div>
 
-    <div class="big-moment">
-      <div class="paragraph bold-line" data-type="Happy Birthday, my almost-everything. 🎂"></div>
-    </div>
+    <div class="paragraph bold-line" data-type="Happy Birthday, my almost-everything. 🎂"></div>
 
     <div class="paragraph" data-type="You will always be my favourite incomplete wish — the prayer I never finished, because finishing it would mean giving up hope."></div>
 
@@ -408,13 +422,13 @@
 
     <div class="signature" data-type="— Always, in every silence"></div>
 
-    <button class="btn" id="wish-btn" onclick="finale()">Keep this memory ♥</button>
-    <button class="btn small skip-btn show" id="skip-btn" onclick="skipTyping()">Skip typing ⏩</button>
+    <button class="btn hidden-btn" id="wish-btn" onclick="finale()">Keep this memory ♥</button>
+    <button class="btn small skip-btn" id="skip-btn" onclick="skipTyping()">Skip typing ⏩</button>
 
   </div>
 </div>
 
-<!-- 4️⃣ MEMORY FINALE -->
+<!-- 4️⃣ MEMORY FINALE MENU -->
 <div id="final-message">
   <h2>Happy Birthday 🎉</h2>
   <p class="sub">Some moments deserve to be kept. This is one of them.</p>
@@ -429,7 +443,7 @@
   <div id="memory-quote">The wish stays lit — forever.</div>
   <p style="font-style:italic;opacity:0.75;max-width:85%;">If you ever forget how much you are wished for, come back to this page. It will be waiting — like a door always open.</p>
   <div id="memory-date"></div>
-  <button class="btn small" style="opacity:1;pointer-events:auto;margin-top:30px;" onclick="location.reload()">↩ Open it again</button>
+  <button class="btn small" style="margin-top:30px;" onclick="location.reload()">↩ Open it again</button>
 </div>
 
 <script>
@@ -459,10 +473,89 @@
     document.body.appendChild(p);
   }
 
+  /* ══════════════════════════════════════════
+     🎵 BACKGROUND MUSIC — soft generated piano
+     (no external file → always works offline)
+     ══════════════════════════════════════════ */
+  let audioCtx = null, musicPlaying = false, musicTimer = null;
+
+  function initAudio() {
+    if (audioCtx) return;
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+
+  // gentle piano-like note
+  function playNote(freq, time, duration, volume) {
+    const osc = audioCtx.createOscillator();
+    const osc2 = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = 'sine';       osc.frequency.value = freq;
+    osc2.type = 'triangle';  osc2.frequency.value = freq * 2; // soft harmonic
+    const g2 = audioCtx.createGain();
+    g2.gain.value = 0.3;
+    osc2.connect(g2); g2.connect(gain);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    // soft attack & long decay = piano feel
+    gain.gain.setValueAtTime(0, time);
+    gain.gain.linearRampToValueAtTime(volume, time + 0.04);
+    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
+    osc.start(time); osc2.start(time);
+    osc.stop(time + duration); osc2.stop(time + duration);
+  }
+
+  // a slow, dreamy melody loop (feels like a lullaby)
+  const melody = [
+    [523.25, 0.0, 1.6, 0.16],  // C5
+    [659.25, 1.2, 1.6, 0.12],  // E5
+    [783.99, 2.4, 2.0, 0.14],  // G5
+    [659.25, 3.8, 1.6, 0.10],  // E5
+    [587.33, 5.0, 1.6, 0.14],  // D5
+    [493.88, 6.2, 2.4, 0.12],  // B4
+    [440.00, 7.6, 2.0, 0.12],  // A4
+    [523.25, 9.0, 2.6, 0.14],  // C5
+    [392.00, 10.8, 2.4, 0.10], // G4
+    [523.25, 12.4, 3.0, 0.12], // C5 (long, ending feel)
+  ];
+  const LOOP_LEN = 16; // seconds
+
+  function scheduleLoop() {
+    if (!musicPlaying) return;
+    const t0 = audioCtx.currentTime + 0.1;
+    melody.forEach(([f, off, dur, vol]) => playNote(f, t0 + off, dur, vol));
+    // low warm bass under it
+    playNote(130.81, t0, 4, 0.06);        // C3
+    playNote(110.00, t0 + 5, 4, 0.05);    // A2
+    playNote(98.00,  t0 + 9, 4, 0.05);    // G2
+    playNote(130.81, t0 + 12, 4, 0.06);   // C3
+    musicTimer = setTimeout(scheduleLoop, LOOP_LEN * 1000);
+  }
+
+  function startMusic() {
+    initAudio();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    musicPlaying = true;
+    document.getElementById('music-toggle').textContent = '🔊';
+    scheduleLoop();
+  }
+
+  function stopMusic() {
+    musicPlaying = false;
+    clearTimeout(musicTimer);
+    if (audioCtx) audioCtx.suspend();
+    document.getElementById('music-toggle').textContent = '🎵';
+  }
+
+  function toggleMusic() {
+    musicPlaying ? stopMusic() : startMusic();
+  }
+
+  /* ── Flow ── */
   const elements = document.querySelectorAll('[data-type]');
   let timeouts = [];
 
   function goToCandle() {
+    startMusic(); // 🎵 music starts on first tap (user gesture → allowed by browsers)
     const scene = document.getElementById('envelope-scene');
     scene.style.opacity = 0;
     scene.style.transform = 'scale(1.15)';
@@ -524,8 +617,8 @@
 
   function typeAll(index) {
     if (index >= elements.length) {
-      document.getElementById('wish-btn').classList.add('show');
-      document.getElementById('skip-btn').classList.remove('show');
+      document.getElementById('wish-btn').classList.remove('hidden-btn');
+      document.getElementById('skip-btn').classList.add('hidden-btn');
       return;
     }
     typeElement(elements[index], elements[index].dataset.type, () => {
@@ -537,8 +630,8 @@
     timeouts.forEach(clearTimeout);
     timeouts = [];
     elements.forEach(el => { el.innerHTML = el.dataset.type; });
-    document.getElementById('wish-btn').classList.add('show');
-    document.getElementById('skip-btn').classList.remove('show');
+    document.getElementById('wish-btn').classList.remove('hidden-btn');
+    document.getElementById('skip-btn').classList.add('hidden-btn');
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
   }
 
@@ -553,36 +646,31 @@
       b.style.setProperty('--dx', (Math.random() - 0.5) * 900 + 'px');
       b.style.setProperty('--dy', (-Math.random() * 600 - 100) + 'px');
       b.style.animationDelay = (Math.random() * 0.4) + 's';
-      document.body.appendChild(b);
+      // ✅ auto-remove bursts so they never block anything
+      b.addEventListener('animationend', () => b.remove());
     }
     setTimeout(() => {
       document.getElementById('final-message').style.display = 'flex';
     }, 1200);
   }
 
-  function reread() {
-    const fm = document.getElementById('final-message');
-    fm.style.opacity = 0;
-    setTimeout(() => {
-      fm.style.display = 'none';
-      fm.style.opacity = 1;
-      const letter = document.getElementById('letter');
-      letter.style.display = 'block';
-      elements.forEach(el => { el.innerHTML = el.dataset.type; });
-      document.getElementById('wish-btn').classList.remove('show');
-      document.getElementById('skip-btn').classList.remove('show');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-      addBackButton();
-    }, 600);
-  }
-
-  function readAloud() {
+  function hideMenuShowLetter() {
     const fm = document.getElementById('final-message');
     fm.style.display = 'none';
     document.getElementById('letter').style.display = 'block';
     elements.forEach(el => { el.innerHTML = el.dataset.type; });
-    document.getElementById('wish-btn').classList.remove('show');
-    document.getElementById('skip-btn').classList.remove('show');
+    document.getElementById('wish-btn').classList.add('hidden-btn');
+    document.getElementById('skip-btn').classList.add('hidden-btn');
+    addBackButton();
+  }
+
+  function reread() {
+    hideMenuShowLetter();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function readAloud() {
+    hideMenuShowLetter();
     window.scrollTo(0, 0);
 
     const text = Array.from(elements).map(el => el.textContent.trim()).join(' ');
@@ -595,16 +683,13 @@
     speechSynthesis.speak(u);
 
     const scrollTimer = setInterval(() => window.scrollBy({ top: 1.2, behavior: 'smooth' }), 50);
-    u.onend = () => {
-      clearInterval(scrollTimer);
-      addBackButton();
-    };
+    u.onend = () => clearInterval(scrollTimer);
   }
 
   function addBackButton() {
     if (document.getElementById('back-menu')) return;
     const back = document.createElement('button');
-    back.className = 'btn show small';
+    back.className = 'btn small';
     back.id = 'back-menu';
     back.textContent = '↩ Back to birthday card';
     back.onclick = () => {
@@ -616,18 +701,13 @@
     document.querySelector('.paper').appendChild(back);
   }
 
-  /* ── Keep memory: saves the date she read it ── */
   function keepMemory() {
     speechSynthesis.cancel();
-    const fm = document.getElementById('final-message');
-    fm.style.opacity = 0;
-    setTimeout(() => {
-      fm.style.display = 'none';
-      const ms = document.getElementById('memory-screen');
-      const date = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
-      document.getElementById('memory-date').textContent = '— This wish was read aloud on ' + date + ' —';
-      ms.style.display = 'flex';
-    }, 700);
+    document.getElementById('final-message').style.display = 'none';
+    const ms = document.getElementById('memory-screen');
+    const date = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    document.getElementById('memory-date').textContent = '— This wish was read aloud on ' + date + ' —';
+    ms.style.display = 'flex';
   }
 </script>
 </body>

@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>For You — A Day To Remember</title>
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 100%;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at center, #1a1a2e 0%, #0f0f1a 100%);
+    overflow-x: hidden;
+    font-family: 'Cormorant Garamond', serif;
+    color: #e8e0d5;
+  }
+
+  /* ── Stars twinkle in background ── */
+  .star {
+    position: fixed;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0.3;
+    animation: twinkle 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.15; transform: scale(1); }
+    50%      { opacity: 0.8; transform: scale(1.4); }
+  }
+
+  /* ── Floating particles ── */
+  .particle {
+    position: fixed;
+    bottom: -50px;
+    opacity: 0;
+    animation: floatUp linear infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+  @keyframes floatUp {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+    10%  { opacity: 0.6; }
+    90%  { opacity: 0.4; }
+    100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+  }
+
+  .scene {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 20px;
+    text-align: center;
+    z-index: 100;
+    transition: opacity 1s ease, transform 1s ease;
+  }
+
+  /* ── Envelope ── */
+  .envelope {
+    width: min(260px, 70vw);
+    height: calc(min(260px, 70vw) * 0.65);
+    background: linear-gradient(135deg, #3a3a5c, #2a2a44);
+    border-radius: 8px;
+    position: relative;
+    cursor: pointer;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    animation: envelopePulse 2.5s ease-in-out infinite;
+  }
+  @keyframes envelopePulse {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%      { transform: translateY(-12px) scale(1.03); }
+  }
+  .seal {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 22%; aspect-ratio: 1;
+    background: radial-gradient(circle, #c0392b, #8e2418);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: clamp(18px, 4vw, 28px);
+    box-shadow: 0 4px 15px rgba(192,57,43,0.5);
+  }
+  .tap-hint {
+    margin-top: 28px;
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(1.2rem, 4.5vw, 1.7rem);
+    color: #d4a966;
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+  /* ── Candle scene ── */
+  .cake { position: relative; margin-bottom: 40px; }
+  .cake-body {
+    width: min(170px, 44vw);
+    height: min(85px, 22vw);
+    background: linear-gradient(#f5cbaa, #e8b48c);
+    border-radius: 10px 10px 6px 6px;
+    margin: 0 auto;
+    position: relative;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+  }
+  .frosting {
+    position: absolute; top: -8px; left: -5px; right: -5px; height: 25px;
+    background: #fff0f5;
+    border-radius: 10px;
+  }
+  .candle {
+    width: 6px; height: 45px;
+    background: repeating-linear-gradient(45deg, #e74c3c 0 4px, #fff 4px 8px);
+    margin: 0 auto;
+    position: relative;
+    border-radius: 3px;
+  }
+  .flame {
+    position: absolute; top: -22px; left: 50%;
+    transform: translateX(-50%);
+    width: 14px; height: 22px;
+    background: radial-gradient(ellipse at bottom, #fff3b0, #ff9a3c 60%, transparent);
+    border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+    animation: flicker 0.15s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 12px rgba(255,180,80,0.9));
+    transition: opacity 0.6s, transform 0.6s;
+  }
+  @keyframes flicker {
+    from { transform: translateX(-50%) scale(1)    skewX(-3deg); }
+    to   { transform: translateX(-50%) scale(1.15) skewX(3deg); }
+  }
+  .glow {
+    position: absolute; top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 130px; height: 130px;
+    background: radial-gradient(circle, rgba(255,180,80,0.25), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+  }
+  .hidden-candle .flame { opacity: 0; transform: translateX(-50%) scale(0); }
+  .hidden-candle .glow  { opacity: 0; transition: opacity 0.6s; }
+
+  .scene-instruction {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(1.3rem, 5vw, 1.9rem);
+    color: #d4a966;
+    margin-bottom: 22px;
+  }
+  .smoke {
+    position: absolute; top: -30px; left: 50%;
+    width: 8px; height: 8px;
+    background: rgba(200,200,200,0.5);
+    border-radius: 50%;
+    filter: blur(3px);
+    animation: smokeUp 2s ease-out forwards;
+  }
+  @keyframes smokeUp {
+    from { transform: translate(-50%, 0) scale(1);   opacity: 0.7; }
+    to   { transform: translate(-30%, -70px) scale(3); opacity: 0; }
+  }
+
+  /* ── Memory letter ── */
+  #letter {
+    max-width: 680px;
+    width: 100%;
+    margin: 0 auto;
+    padding: clamp(40px, 8vw, 80px) clamp(14px, 4vw, 30px) 80px;
+    display: none;
+    position: relative;
+    z-index: 5;
+  }
+  .paper {
+    background: linear-gradient(160deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
+    border: 1px solid rgba(212,169,102,0.25);
+    border-radius: 14px;
+    padding: clamp(24px, 6vw, 50px) clamp(16px, 5vw, 44px);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+  }
+  .paragraph {
+    font-size: clamp(1rem, 2.6vw, 1.18rem);
+    line-height: 1.9;
+    letter-spacing: 0.3px;
+    margin-bottom: 24px;
+    min-height: 1.5em;
+    word-wrap: break-word;
+  }
+  .paragraph .caret {
+    display: inline-block;
+    width: 2px;
+    background: #d4a966;
+    margin-left: 2px;
+    animation: caretBlink 0.7s step-end infinite;
+    vertical-align: baseline;
+    height: 1em;
+  }
+  @keyframes caretBlink { 50% { opacity: 0; } }
+
+  .greeting {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(2rem, 7vw, 3rem);
+    color: #d4a966;
+    text-align: center;
+    margin-bottom: 10px;
+  }
+  .emphasis { font-style: italic; color: #f0c987; }
+  .whisper  { color: #c9a0dc; font-style: italic; }
+  .bold-line {
+    font-weight: 600;
+    color: #f0c987;
+    text-align: center;
+    font-size: clamp(1.05rem, 2.8vw, 1.25rem);
+  }
+  .big-wish {
+    font-weight: 600;
+    color: #f0c987;
+    text-align: center;
+    font-size: clamp(1.3rem, 4vw, 1.6rem);
+    margin: 30px 0;
+  }
+  .final-couplet {
+    font-style: italic;
+    text-align: center;
+    color: #d4a966;
+    font-size: clamp(1.05rem, 3vw, 1.25rem);
+    margin-top: 26px;
+  }
+  .divider {
+    text-align: center;
+    color: #d4a966;
+    letter-spacing: 8px;
+    margin: 26px 0;
+    opacity: 0.7;
+    font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+  }
+  .signature {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    color: #d4a966;
+    text-align: right;
+    margin-top: 26px;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    display: block;
+    margin: 40px auto 0;
+    padding: clamp(10px, 2.5vw, 14px) clamp(24px, 6vw, 40px);
+    background: transparent;
+    border: 1px solid #d4a966;
+    color: #d4a966;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(0.95rem, 2.8vw, 1.1rem);
+    letter-spacing: 2px;
+    cursor: pointer;
+    border-radius: 30px;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.4s ease;
+  }
+  .btn.show { opacity: 1; pointer-events: auto; }
+  .btn:hover {
+    background: #d4a966;
+    color: #1a1a2e;
+    box-shadow: 0 0 30px rgba(212,169,102,0.5);
+  }
+  .btn.small {
+    font-size: clamp(0.8rem, 2.4vw, 0.95rem);
+    margin-top: 14px;
+    padding: 9px 26px;
+  }
+  .skip-btn {
+    border-color: rgba(212,169,102,0.4);
+    color: rgba(212,169,102,0.7);
+  }
+
+  /* ── Memory finale ── */
+  #final-message {
+    position: fixed; inset: 0;
+    display: none;
+    align-items: center; justify-content: center;
+    flex-direction: column;
+    background: rgba(15,15,26,0.96);
+    z-index: 300;
+    text-align: center;
+    padding: 24px;
+  }
+  #final-message h2 {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(2rem, 8vw, 3rem);
+    color: #d4a966;
+    margin-bottom: 12px;
+    animation: popIn 1s ease;
+  }
+  #final-message .sub {
+    font-size: clamp(1rem, 3vw, 1.2rem);
+    font-style: italic;
+    opacity: 0.85;
+    max-width: 90%;
+    margin-bottom: 30px;
+    animation: popIn 1.5s ease;
+  }
+  #final-message .btn { margin: 10px auto; min-width: 240px; animation: popIn 1.8s ease; }
+  #final-message .memoline {
+    margin-top: 26px;
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    opacity: 0.6;
+    font-style: italic;
+    animation: fadeSlow 2.5s ease;
+  }
+  @keyframes fadeSlow { from { opacity: 0; } to { opacity: 0.6; } }
+
+  @keyframes popIn {
+    from { transform: scale(0.7); opacity: 0; }
+    to   { transform: scale(1); opacity: 1; }
+  }
+
+  .burst {
+    position: fixed;
+    pointer-events: none;
+    z-index: 200;
+    font-size: clamp(16px, 3.5vw, 24px);
+    animation: burst 1.6s ease-out forwards;
+  }
+  @keyframes burst {
+    from { transform: translate(0,0) scale(1); opacity: 1; }
+    to   { transform: translate(var(--dx), var(--dy)) scale(0.4); opacity: 0; }
+  }
+
+  /* ── Keep-it memory screen ── */
+  #memory-screen .big-heart {
+    font-size: clamp(4rem, 15vw, 6rem);
+    animation: heartbeat 1.4s ease-in-out infinite;
+    margin-bottom: 20px;
+  }
+  @keyframes heartbeat {
+    0%, 100% { transform: scale(1); }
+    25%      { transform: scale(1.15); }
+    40%      { transform: scale(1); }
+    60%      { transform: scale(1.1); }
+  }
+  #memory-quote {
+    font-family: 'Great Vibes', cursive;
+    font-size: clamp(1.4rem, 5vw, 2rem);
+    color: #d4a966;
+    margin-bottom: 14px;
+  }
+  #memory-date {
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    opacity: 0.6;
+    letter-spacing: 3px;
+    margin-top: 24px;
+  }
+</style>
+</head>
+<body>
+
+<!-- 1️⃣ ENVELOPE -->
+<div class="scene" id="envelope-scene">
+  <div class="envelope" onclick="goToCandle()">
+    <div class="seal">♥</div>
+  </div>
+  <div class="tap-hint">Something is waiting inside...</div>
+</div>
+
+<!-- 2️⃣ CANDLE -->
+<div class="scene" id="candle-scene" style="display:none;">
+  <div class="scene-instruction">Make a wish first...<br>then blow out the candle 🕯️</div>
+  <div class="cake" id="cake">
+    <div class="candle" id="candle-stick">
+      <div class="flame"></div>
+    </div>
+    <div class="glow" id="glow"></div>
+    <div class="cake-body"><div class="frosting"></div></div>
+  </div>
+  <button class="btn show" onclick="blowCandle()">Blow the candle 🌬️</button>
+</div>
+
+<!-- 3️⃣ THE MEMORY LETTER -->
+<div id="letter">
+  <div class="paper">
+
+    <div class="greeting" data-type="My Dearest,"></div>
+
+    <div class="paragraph" data-type="Today isn't just your birthday — it's the anniversary of the day the world quietly received its most beautiful accident. 🎂"></div>
+
+    <div class="paragraph whisper" data-type="Some wishes are spoken, some are written — and mine... mine has been silent for too long. The truth is, I've celebrated this day privately, quietly, every single year, without you ever knowing. Today, I finally let the silence speak."></div>
+
+    <div class="divider" data-type="❦ ❦ ❦"></div>
+
+    <div class="paragraph" data-type="So here is my wish for you: may this year give you every door opening before you even knock, kind people who never make you doubt your worth, and dreams that finally stop waiting — and come true."></div>
+
+    <div class="paragraph" data-type="May your laughter come easier than your worries, and may you receive the peace, the softness, the love you truly deserve — even the pieces I could never give you myself."></div>
+
+    <div class="paragraph" data-type="And if ever a storm finds you, remember: somewhere, there is a door that will always open for you."></div>
+
+    <div class="paragraph bold-line" data-type="Anytime. Anywhere. In any situation."></div>
+
+    <div class="big-moment">
+      <div class="paragraph bold-line" data-type="Happy Birthday, my almost-everything. 🎂"></div>
+    </div>
+
+    <div class="paragraph" data-type="You will always be my favourite incomplete wish — the prayer I never finished, because finishing it would mean giving up hope."></div>
+
+    <div class="paragraph whisper" data-type="So I keep wishing. Every year. Every day. ✨"></div>
+
+    <div class="final-couplet" data-type="The candle blows out today, but the wish stays lit — forever. 🕯️"></div>
+
+    <div class="signature" data-type="— Always, in every silence"></div>
+
+    <button class="btn" id="wish-btn" onclick="finale()">Keep this memory ♥</button>
+    <button class="btn small skip-btn show" id="skip-btn" onclick="skipTyping()">Skip typing ⏩</button>
+
+  </div>
+</div>
+
+<!-- 4️⃣ MEMORY FINALE -->
+<div id="final-message">
+  <h2>Happy Birthday 🎉</h2>
+  <p class="sub">Some moments deserve to be kept. This is one of them.</p>
+  <button class="btn" onclick="keepMemory()">♥ Keep this memory</button>
+  <button class="btn" onclick="reread()">📖 Read it again</button>
+  <button class="btn" onclick="readAloud()">🔊 Hear it spoken</button>
+</div>
+
+<!-- 5️⃣ MEMORY KEEPSAKE -->
+<div class="scene" id="memory-screen" style="display:none;">
+  <div class="big-heart">♥</div>
+  <div id="memory-quote">The wish stays lit — forever.</div>
+  <p style="font-style:italic;opacity:0.75;max-width:85%;">If you ever forget how much you are wished for, come back to this page. It will be waiting — like a door always open.</p>
+  <div id="memory-date"></div>
+  <button class="btn small" style="opacity:1;pointer-events:auto;margin-top:30px;" onclick="location.reload()">↩ Open it again</button>
+</div>
+
+<script>
+  /* ── Twinkling stars ── */
+  for (let i = 0; i < 40; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 1;
+    s.style.width = size + 'px';
+    s.style.height = size + 'px';
+    s.style.left = Math.random() * 100 + 'vw';
+    s.style.top = Math.random() * 100 + 'vh';
+    s.style.animationDelay = Math.random() * 3 + 's';
+    document.body.appendChild(s);
+  }
+
+  /* ── Floating particles ── */
+  const symbols = ['♥', '✦', '✧', '❦', '♡', '✨'];
+  for (let i = 0; i < 25; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.fontSize = (10 + Math.random() * 16) + 'px';
+    p.style.animationDuration = (7 + Math.random() * 10) + 's';
+    p.style.animationDelay = (Math.random() * 10) + 's';
+    document.body.appendChild(p);
+  }
+
+  const elements = document.querySelectorAll('[data-type]');
+  let timeouts = [];
+
+  function goToCandle() {
+    const scene = document.getElementById('envelope-scene');
+    scene.style.opacity = 0;
+    scene.style.transform = 'scale(1.15)';
+    setTimeout(() => {
+      scene.style.display = 'none';
+      document.getElementById('candle-scene').style.display = 'flex';
+    }, 1000);
+  }
+
+  function blowCandle() {
+    document.getElementById('cake').classList.add('hidden-candle');
+    const smoke = document.createElement('div');
+    smoke.className = 'smoke';
+    document.getElementById('candle-stick').appendChild(smoke);
+    setTimeout(() => {
+      const cs = document.getElementById('candle-scene');
+      cs.style.opacity = 0;
+      setTimeout(() => {
+        cs.style.display = 'none';
+        document.getElementById('letter').style.display = 'block';
+        window.scrollTo(0, 0);
+        typeAll(0);
+      }, 900);
+    }, 900);
+  }
+
+  /* ── Typewriter ── */
+  function typeElement(el, htmlContent, done) {
+    el.innerHTML = '<span class="typed"></span><span class="caret"></span>';
+    const target = el.querySelector('.typed');
+    let i = 0, inTag = false, tagBuffer = '';
+
+    function step() {
+      if (i >= htmlContent.length) {
+        el.querySelector('.caret').remove();
+        done();
+        return;
+      }
+      const ch = htmlContent[i];
+      if (ch === '<') inTag = true;
+      if (inTag) {
+        tagBuffer += ch;
+        if (ch === '>') { target.innerHTML += tagBuffer; tagBuffer = ''; inTag = false; }
+      } else {
+        target.innerHTML += ch;
+      }
+      i++;
+      let delay = 28;
+      if (ch === '.' || ch === ',') delay = 220;
+      if (ch === '!' || ch === '?') delay = 320;
+      if (ch === '…') delay = 500;
+      timeouts.push(setTimeout(step, delay));
+      if (el.getBoundingClientRect().bottom > window.innerHeight - 60) {
+        window.scrollBy({ top: 40, behavior: 'smooth' });
+      }
+    }
+    step();
+  }
+
+  function typeAll(index) {
+    if (index >= elements.length) {
+      document.getElementById('wish-btn').classList.add('show');
+      document.getElementById('skip-btn').classList.remove('show');
+      return;
+    }
+    typeElement(elements[index], elements[index].dataset.type, () => {
+      timeouts.push(setTimeout(() => typeAll(index + 1), 700));
+    });
+  }
+
+  function skipTyping() {
+    timeouts.forEach(clearTimeout);
+    timeouts = [];
+    elements.forEach(el => { el.innerHTML = el.dataset.type; });
+    document.getElementById('wish-btn').classList.add('show');
+    document.getElementById('skip-btn').classList.remove('show');
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  }
+
+  function finale() {
+    const syms = ['🎉', '✨', '♥', '🎈', '💫', '🎂'];
+    for (let i = 0; i < 60; i++) {
+      const b = document.createElement('div');
+      b.className = 'burst';
+      b.textContent = syms[Math.floor(Math.random() * syms.length)];
+      b.style.left = '50vw';
+      b.style.top = '60vh';
+      b.style.setProperty('--dx', (Math.random() - 0.5) * 900 + 'px');
+      b.style.setProperty('--dy', (-Math.random() * 600 - 100) + 'px');
+      b.style.animationDelay = (Math.random() * 0.4) + 's';
+      document.body.appendChild(b);
+    }
+    setTimeout(() => {
+      document.getElementById('final-message').style.display = 'flex';
+    }, 1200);
+  }
+
+  function reread() {
+    const fm = document.getElementById('final-message');
+    fm.style.opacity = 0;
+    setTimeout(() => {
+      fm.style.display = 'none';
+      fm.style.opacity = 1;
+      const letter = document.getElementById('letter');
+      letter.style.display = 'block';
+      elements.forEach(el => { el.innerHTML = el.dataset.type; });
+      document.getElementById('wish-btn').classList.remove('show');
+      document.getElementById('skip-btn').classList.remove('show');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      addBackButton();
+    }, 600);
+  }
+
+  function readAloud() {
+    const fm = document.getElementById('final-message');
+    fm.style.display = 'none';
+    document.getElementById('letter').style.display = 'block';
+    elements.forEach(el => { el.innerHTML = el.dataset.type; });
+    document.getElementById('wish-btn').classList.remove('show');
+    document.getElementById('skip-btn').classList.remove('show');
+    window.scrollTo(0, 0);
+
+    const text = Array.from(elements).map(el => el.textContent.trim()).join(' ');
+    const u = new SpeechSynthesisUtterance(text);
+    u.rate = 0.85;
+    u.pitch = 1;
+    const voices = speechSynthesis.getVoices();
+    const soft = voices.find(v => /female|zira|samantha|google uk english female/i.test(v.name));
+    if (soft) u.voice = soft;
+    speechSynthesis.speak(u);
+
+    const scrollTimer = setInterval(() => window.scrollBy({ top: 1.2, behavior: 'smooth' }), 50);
+    u.onend = () => {
+      clearInterval(scrollTimer);
+      addBackButton();
+    };
+  }
+
+  function addBackButton() {
+    if (document.getElementById('back-menu')) return;
+    const back = document.createElement('button');
+    back.className = 'btn show small';
+    back.id = 'back-menu';
+    back.textContent = '↩ Back to birthday card';
+    back.onclick = () => {
+      speechSynthesis.cancel();
+      document.getElementById('letter').style.display = 'none';
+      document.getElementById('final-message').style.display = 'flex';
+      back.remove();
+    };
+    document.querySelector('.paper').appendChild(back);
+  }
+
+  /* ── Keep memory: saves the date she read it ── */
+  function keepMemory() {
+    speechSynthesis.cancel();
+    const fm = document.getElementById('final-message');
+    fm.style.opacity = 0;
+    setTimeout(() => {
+      fm.style.display = 'none';
+      const ms = document.getElementById('memory-screen');
+      const date = new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+      document.getElementById('memory-date').textContent = '— This wish was read aloud on ' + date + ' —';
+      ms.style.display = 'flex';
+    }, 700);
+  }
+</script>
+</body>
+</html>

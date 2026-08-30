@@ -17,7 +17,7 @@
     color: #e8e0d5;
   }
 
-  /* ══ 📸 BACKGROUND PHOTO (dim + blurred memory layer) ══ */
+  /* ══ 📸 BACKGROUND PHOTO (dim + blurred) ══ */
   #bg-photo {
     position: fixed;
     inset: 0;
@@ -27,7 +27,6 @@
     z-index: 0;
     pointer-events: none;
   }
-  /* soft vignette so edges melt into the dark theme */
   #bg-vignette {
     position: fixed;
     inset: 0;
@@ -218,7 +217,7 @@
     margin-bottom: 10px;
   }
 
-  /* ══ 📸 POLAROID PHOTO INSIDE THE LETTER ══ */
+  /* ══ 📸 POLAROID INSIDE LETTER ══ */
   .photo-frame {
     width: min(190px, 48vw);
     margin: 20px auto 26px;
@@ -228,10 +227,9 @@
     box-shadow: 0 12px 40px rgba(0,0,0,0.6);
     transform: rotate(-3deg);
     opacity: 0;
-    transition: opacity 1.5s ease, transform 1.5s ease;
-    scale: 1.1;
+    transition: opacity 1.5s ease;
   }
-  .photo-frame.show { opacity: 1; scale: 1; }
+  .photo-frame.show { opacity: 1; }
   .photo-frame img {
     width: 100%;
     display: block;
@@ -412,10 +410,10 @@
 <div id="bg-photo"></div>
 <div id="bg-vignette"></div>
 
-<!-- 🎵 real song file (Sajni — place song.mp3 next to this file) -->
+<!-- 🎵 the ONLY music — song.mp3 (place next to this file) -->
 <audio id="bg-music" loop src="song.mp3" preload="auto"></audio>
 
-<button id="music-toggle" onclick="toggleMusic()" title="Music on/off">🔊</button>
+<button id="music-toggle" onclick="toggleMusic()" title="Music on/off">🎵</button>
 
 <!-- 1️⃣ ENVELOPE -->
 <div class="scene" id="envelope-scene">
@@ -526,117 +524,31 @@
     document.body.appendChild(p);
   }
 
-  /* ════════════════════════════════════════
-     🎵 HYBRID MUSIC SYSTEM
-     Phase 1: generated piano (envelope → typing)
-     Phase 2: real song song.mp3 (finale onwards)
-     If song.mp3 missing → piano continues
-     ════════════════════════════════════════ */
-  let audioCtx = null, musicOn = false, musicTimer = null;
-  let usingRealSong = false;
+  /* ═══════════════════════════════
+     🎵 MUSIC — only song.mp3
+     Starts on envelope tap, loops forever
+     ═══════════════════════════════ */
+  const song = document.getElementById('bg-music');
+  let musicOn = false;
 
-  function initAudio() {
-    if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  function startSong() {
+    song.volume = 0.35;
+    song.play().then(() => {
+      musicOn = true;
+      document.getElementById('music-toggle').textContent = '🔊';
+    }).catch(() => {
+      console.log('song.mp3 not found or blocked');
+    });
   }
 
-  function playNote(freq, time, duration, volume) {
-    const osc = audioCtx.createOscillator();
-    const osc2 = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = 'sine';       osc.frequency.value = freq;
-    osc2.type = 'triangle';  osc2.frequency.value = freq * 2;
-    const g2 = audioCtx.createGain();
-    g2.gain.value = 0.3;
-    osc2.connect(g2); g2.connect(gain);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    gain.gain.setValueAtTime(0, time);
-    gain.gain.linearRampToValueAtTime(volume, time + 0.04);
-    gain.gain.exponentialRampToValueAtTime(0.0001, time + duration);
-    osc.start(time); osc2.start(time);
-    osc.stop(time + duration); osc2.stop(time + duration);
-  }
-
-  const melody = [
-    [523.25, 0.0, 1.6, 0.16],
-    [659.25, 1.2, 1.6, 0.12],
-    [783.99, 2.4, 2.0, 0.14],
-    [659.25, 3.8, 1.6, 0.10],
-    [587.33, 5.0, 1.6, 0.14],
-    [493.88, 6.2, 2.4, 0.12],
-    [440.00, 7.6, 2.0, 0.12],
-    [523.25, 9.0, 2.6, 0.14],
-    [392.00, 10.8, 2.4, 0.10],
-    [523.25, 12.4, 3.0, 0.12],
-  ];
-  const LOOP_LEN = 16;
-
-  function scheduleLoop() {
-    if (!musicOn || usingRealSong) return;
-    const t0 = audioCtx.currentTime + 0.1;
-    melody.forEach(([f, off, dur, vol]) => playNote(f, t0 + off, dur, vol));
-    playNote(130.81, t0, 4, 0.06);
-    playNote(110.00, t0 + 5, 4, 0.05);
-    playNote(98.00,  t0 + 9, 4, 0.05);
-    playNote(130.81, t0 + 12, 4, 0.06);
-    musicTimer = setTimeout(scheduleLoop, LOOP_LEN * 1000);
-  }
-
-  function startPiano() {
-    initAudio();
-    if (audioCtx.state === 'suspended') audioCtx.resume();
-    musicOn = true;
-    document.getElementById('music-toggle').textContent = '🔊';
-    scheduleLoop();
-  }
-
-  function stopPiano() {
-    clearTimeout(musicTimer);
-  }
-
-  function switchToRealSong() {
-    const song = document.getElementById('bg-music');
-    song.volume = 0;
-    const playAttempt = song.play();
-    if (playAttempt !== undefined) {
-      playAttempt.then(() => {
-        usingRealSong = true;
-        stopPiano();
-        let vol = 0;
-        const fade = setInterval(() => {
-          vol += 0.02;
-          if (vol >= 0.35) { song.volume = 0.35; clearInterval(fade); }
-          else song.volume = vol;
-        }, 60);
-      }).catch(() => {
-        console.log('song.mp3 not found — keeping piano ♪');
-      });
-    }
-  }
-
-  function stopAllMusic() {
+  function stopSong() {
+    song.pause();
     musicOn = false;
-    stopPiano();
-    if (audioCtx) audioCtx.suspend();
-    document.getElementById('bg-music').pause();
     document.getElementById('music-toggle').textContent = '🎵';
   }
 
   function toggleMusic() {
-    if (musicOn) {
-      stopAllMusic();
-    } else {
-      musicOn = true;
-      if (usingRealSong) {
-        const song = document.getElementById('bg-music');
-        song.volume = 0.35;
-        song.play().catch(() => {});
-      } else {
-        startPiano();
-      }
-      document.getElementById('music-toggle').textContent = '🔊';
-    }
+    musicOn ? stopSong() : startSong();
   }
 
   /* ── Flow ── */
@@ -644,7 +556,7 @@
   let timeouts = [];
 
   function goToCandle() {
-    startPiano();
+    startSong(); /* 🎵 song begins with her first tap */
     const scene = document.getElementById('envelope-scene');
     scene.style.opacity = 0;
     scene.style.transform = 'scale(1.15)';
@@ -666,7 +578,7 @@
         cs.style.display = 'none';
         document.getElementById('letter').style.display = 'block';
         window.scrollTo(0, 0);
-        /* 📸 polaroid fades in gently as the letter begins */
+        /* 📸 polaroid fades in as the letter begins */
         setTimeout(() => document.getElementById('photo-frame').classList.add('show'), 800);
         typeAll(0);
       }, 900);
@@ -727,7 +639,7 @@
   }
 
   function finale() {
-    switchToRealSong(); /* 🎵 piano fades → Sajni begins with the fireworks */
+    /* 🎆 fireworks — song is already playing, keeps going seamlessly */
     const syms = ['🎉', '✨', '♥', '🎈', '💫', '🎂'];
     for (let i = 0; i < 60; i++) {
       const b = document.createElement('div');
